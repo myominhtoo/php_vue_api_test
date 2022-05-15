@@ -8,8 +8,10 @@
 }
 
 body{
+  width:100vw;
   height:100vh;
   max-height:100vh;
+  overflow:hidden;
 }
 
 #app {
@@ -18,6 +20,18 @@ body{
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
+  }
+
+  main{
+    height:450px;
+    max-height: 450px;
+    overflow-y:scroll;
+  }
+  
+  footer{
+    position: absolute;
+    bottom: 0;
+    left:0;
   }
   
   nav {
@@ -45,4 +59,92 @@ body{
 
 .text{
   color:rgba(255,255,255,0.75);
+}
+
+#status-container{
+  width:99%;
+  margin:10px auto;
+  padding:10px 10px;
+  border-radius:1px;
+  box-shadow:0 0 1.5px rgba(0,0,0,0.75);
+  background: rgba(46, 230, 92 , 0.25);
+}
+
+#status-container.error{
+ background: rgba(255, 97, 117,0.75);
+}
+
+.status{
+  padding:0;
+  margin:0;
+}
+
+#layer{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(0,0,0,0.8);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  transition: 0.8s all;
+  overflow: hidden;
+}
+
+#modal{
+  width:70%;
+  height:auto;
+  padding:0.5rem;
+  background: rgba(255,255,255,1);
+  padding:10px 30px;
+  border-radius:3px;
+  box-shadow: 0 0 2.5px rgba(255,255,255,0.75);
+  overflow: hidden;
+  z-index:10;
+}
+
+.sticky-top{
+  z-index:-100;
+}
+
+#modal #modal-title{
+  display: flex;
+  justify-content: flex-end;
+}
+
+#modal #modal-close{
+  color:rgba(0,0,0,0.75);
+  font-size:25px;
+  font-weight: bold;
+  transition:0.5s all;
+}
+
+#modal #modal-close:hover{
+  transform: rotate(100deg);
+}
+
+main{
+  margin:0 auto;
+}
+#bar{
+  width:100%;
+  margin:0 auto;
+}
+
+@media (min-width:700px){
+  #modal{
+    width:50%;
+  }
+}
+
+@media (min-width:1000px){
+  #modal{
+    width:25%;
+  }
+
+  main,#bar{
+    width:80%;
+  }
 }

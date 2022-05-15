@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-striped table-dark" v-if="showUsers">
+  <table class="table table-striped table-dark table-bordered" v-if="showUsers">
       <thead class="sticky-top">
           <tr class="text-danger fw-bold text-start">
              <td>ID</td>
@@ -18,7 +18,7 @@
               <td>{{ user.name }}</td>
               <td>{{ user.email }}</td>
               <td id="update"><i class="fa-solid fa-pen-to-square" id="update-btn" @click="handleUpdate(user.id)"></i></td>
-              <td id="delete"><i class="fa-solid fa-trash-can" id="delete-btn" @click="handleDelete(user.id,user.name)"></i></td>
+              <td id="delete"><i class="fa-solid fa-trash-can" id="delete-btn" @click="handleDelete(user.id)"></i></td>
           </tr>
       </tbody>
   </table>

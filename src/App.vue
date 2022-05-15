@@ -1,20 +1,22 @@
 <template>
   <!-- <Modal/> -->
   <h1 class="h4 w-100 bg p-3 fw-bold text">User Management Simple App</h1>
-  <button class="btn btn-success btn-sm w-100 mt-3 mx-1 mb-3" @click="modals.addModal.showModal = true;"><i class="fa-solid fa-circle-plus"></i> Add User</button>
+  <div class="text-end px-2" id="bar"><button class="btn btn-success btn-sm mt-3 mx-1 mb-3 p-2" @click="modals.addModal.showModal = true;"><i class="fa-solid fa-circle-plus"></i> Add User</button></div>
   <main>
     <!-- <button class="btn btn-success btn-sm float-end mt-3 mx-1 mb-3" @click="modals.addModal.showModal = true;"><i class="fa-solid fa-circle-plus"></i> Add User</button> -->
     <Status :msg="status.msg" :hasError="false" v-if="status.showStatus"/>
-    <Table :users="users" :showUsers="showUsers" @delete:user="handleDelete"/>
+    <Table :users="users" :showUsers="showUsers" @delete:user="handleDelete" @update:user="handleUpdate"/>
   </main>
 
-  <Modal @add:user="handleAddUser"  v-show="modals.addModal.showModal || modals.deleteModal.showModal" @close:modal="handleCloseModal">
+  <Modal @add:user="handleAddUser" @update:user="handleUpdateUser(temp.id)"  v-show="modals.addModal.showModal || modals.deleteModal.showModal || modals.updateModal.showModal" @close:modal="handleCloseModal">
+    <!-- for add user -->
     <template v-slot:addUser v-if="modals.addModal.showModal">
        <BaseInput type="text" label="Username"  @update:value="handleNameUpdate" holder="Enter username" :hasError="false"/>
        <p class="my-3"></p>
        <BaseInput type="email" label="Email" @update:value="handleEmailUpdate" holder="Enter email address" :hasError="false"/>
        <button type="submit" class="btn btn-success w-100 my-2">Add</button>
     </template>
+    <!-- for delete -->
     <template v-slot:deleteUser v-if="modals.deleteModal.showModal" >
       <h1 class="h5 fw-bold text-d">You are deleting <span class="text-danger">{{ temp.name  }}</span>!</h1>
       <p class="my-3 fw-bold">Are you sure??</p>
@@ -23,9 +25,16 @@
          <button class="btn btn-danger btn-sm" @click="handleDeleteUser(temp.id)">Confirm</button>
       </div>
     </template>
+    <template v-slot:updateUser v-if="modals.updateModal.showModal">
+        <BaseInput type="hidden" :value="temp.id"/>
+        <BaseInput type="text" label="Username"  @update:value="handleNameUpdate" :value="temp.name" holder="Enter username" :hasError="false"/>
+       <p class="my-3"></p>
+       <BaseInput type="email" label="Email" @update:value="handleEmailUpdate" :value="temp.email" holder="Enter email address" :hasError="false"/>
+       <button type="submit" class="btn btn-success w-100 my-2">Update</button>
+    </template>
   </Modal>
 
-  <!-- <h1>{{ user.name }} {{ user.email }}</h1> -->
+  <!-- <h1 class="text-daner">{{ user.name }}</h1> -->
   <footer class="w-100 bg text p-2">Copy Right @ {{ year }}</footer>
 </template>
 
@@ -86,24 +95,24 @@ export default {
       this.modals.addModal.showModal = true;
       //this will do if true 
       if(this.modals.addModal.showModal){
-        let data = new FormData();
-        data.append("name",this.user.name);
-        data.append("email",this.user.email);
+        // let data = new FormData();
+        // data.append("name",this.user.name);
+        // data.append("email",this.user.email);
         fetch(`http://localhost:8088/user_management_api/users.php?action=insert&name=${this.user.name}&email=${this.user.email}`).then(res => {
           if(!res.ok){
             this.status.showStatus = true;
             this.status.msg = "Error!";
             throw new Error("Error Occured");
           }
-          this.user.name = "";
-          this.user.email = "";
-          this.modals.addModal.showModal = false;
-          this.fetchUsers();
           return res.json();
         }).then(data => {
+          this.fetchUsers();
           this.status.showStatus = true;
           this.status.hasError = false;
           this.status.msg = data.msg;
+          this.user.name = "";
+          this.user.email = "";
+          this.handleCloseModal();
         })
         .catch(err => console.error(err));
 
@@ -113,8 +122,7 @@ export default {
       let user = this.users.filter(user => {
         return user.id === id;
       });
-      this.modals.deleteModal.
-        showModal = true;
+      this.modals.deleteModal.showModal = true;
       this.temp.id = user[0].id;
       this.temp.name = user[0].name;
     },
@@ -129,6 +137,36 @@ export default {
       }).then(data => {
          this.status.showStatus = true;
          this.status.msg = data.msg;
+         this.fetchUsers();
+      }).catch(e => {
+        console.log(e);
+      });
+    },
+    handleUpdate(id){
+      let user = this.users.filter( user => {
+        return id === user.id;
+      });
+      this.modals.updateModal.showModal = true;
+      this.temp.id = user[0].id;
+      this.temp.name = user[0].name;
+      this.temp.email = user[0].email;
+      //for submit
+      this.user.name = user[0].name;
+      this.user.email = user[0].email;
+    },
+   handleUpdateUser(id){
+      let name = this.user.name;
+      let email = this.user.email;
+
+      fetch(`http://localhost:8088/user_management_api/users.php?action=update&id=${id}&name=${name}&email=${email}`)
+      .then(res => res.json())
+      .then(data => {
+        this.fetchUsers();
+        this.handleCloseModal();
+        this.status.showStatus = true;
+        this.status.msg = data.msg;
+        this.user.name = "";
+        this.user.email = "";
       });
     },
     fetchUsers(){
@@ -138,8 +176,7 @@ export default {
           throw new Error("Error happened!");
         }
         return res.json();
-      })
-      .then(data => {
+      }).then(data => {
         this.showUsers = true;
         this.users = data;
       }).catch(e => {
@@ -155,16 +192,5 @@ export default {
 </script>
 
 <style>
-main{
-  height:450px;
-  max-height: 450px;
-  overflow-y:scroll;
-}
-
-footer{
-  position: absolute;
-  bottom: 0;
-  left:0;
-}
 
 </style>

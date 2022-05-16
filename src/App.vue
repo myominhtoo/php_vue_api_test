@@ -4,7 +4,7 @@
   <div class="text-end px-2" id="bar"><button class="btn btn-success btn-sm mt-3 mx-1 mb-3 p-2" @click="modals.addModal.showModal = true;"><i class="fa-solid fa-circle-plus"></i> Add User</button></div>
   <main>
     <!-- <button class="btn btn-success btn-sm float-end mt-3 mx-1 mb-3" @click="modals.addModal.showModal = true;"><i class="fa-solid fa-circle-plus"></i> Add User</button> -->
-    <Status :msg="status.msg" :hasError="false" v-if="status.showStatus"/>
+    <Status :msg="status.msg" :hasError="status.hasError" v-if="status.showStatus"/>
     <Table :users="users" :showUsers="showUsers" @delete:user="handleDelete" @update:user="handleUpdate"/>
   </main>
 
@@ -108,7 +108,7 @@ export default {
         }).then(data => {
           this.fetchUsers();
           this.status.showStatus = true;
-          this.status.hasError = false;
+          this.status.hasError = data.error;
           this.status.msg = data.msg;
           this.user.name = "";
           this.user.email = "";
@@ -164,6 +164,7 @@ export default {
         this.fetchUsers();
         this.handleCloseModal();
         this.status.showStatus = true;
+        this.status.hasError = data.error;
         this.status.msg = data.msg;
         this.user.name = "";
         this.user.email = "";
